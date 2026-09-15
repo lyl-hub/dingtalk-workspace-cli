@@ -15,7 +15,7 @@ import (
 
 const EntitySearchPageSize = 50
 
-var simpleHighlightTag = regexp.MustCompile(`(?i)</?(?:em|b|strong|mark)(?:\s[^>]*)?>`)
+var simpleHighlightTag = regexp.MustCompile(`(?i)</?(?:red|em|b|strong|mark)(?:\s[^>]*)?>`)
 
 // EntityType is the stable search_entities type accepted by AITable MCP.
 type EntityType string
@@ -186,7 +186,7 @@ func parseEntityCandidate(entityType EntityType, item map[string]any) (EntityCan
 	}
 	candidate := EntityCandidate{
 		Name:        name,
-		Description: strings.TrimSpace(firstString(item, "description")),
+		Description: normalizeEntityDisplayName(firstString(item, "description")),
 	}
 	switch entityType {
 	case EntityPerson:

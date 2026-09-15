@@ -38,6 +38,34 @@ func TestCrossPlatformCoverageEntityTypeAndCandidateValidationBranches(t *testin
 		}
 	}
 
+	for _, test := range []struct {
+		kind EntityType
+		item map[string]any
+		name string
+		desc string
+	}{
+		{EntityPerson, map[string]any{
+			"name": "<RED class=\"hit\">丁<em>光</em>华</RED>", "description": "<mark>研发</mark><red>成员</red>",
+			"person": map[string]any{"userId": "u", "corpId": "c"},
+		}, "丁光华", "研发成员"},
+		{EntityDepartment, map[string]any{
+			"name": "<strong>研发</strong><RED>部</RED>", "description": "<B data-hit=\"1\">核心</B>",
+			"department": map[string]any{"departmentId": "d"},
+		}, "研发部", "核心"},
+		{EntityGroup, map[string]any{
+			"name": "<mark>项目</mark>群", "description": "普通 <redacted> 文本",
+			"group": map[string]any{"cid": "cid"},
+		}, "项目群", "普通 <redacted> 文本"},
+	} {
+		candidate, err := parseEntityCandidate(test.kind, test.item)
+		if err != nil {
+			t.Fatalf("parseEntityCandidate(%s) error = %v", test.kind, err)
+		}
+		if candidate.Name != test.name || candidate.Description != test.desc {
+			t.Fatalf("parseEntityCandidate(%s) = %#v, want name=%q desc=%q", test.kind, candidate, test.name, test.desc)
+		}
+	}
+
 	invalid := []struct {
 		kind EntityType
 		item map[string]any
